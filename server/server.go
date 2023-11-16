@@ -2,11 +2,9 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/vinoMamba/lazy-doc-end/handler"
 )
 
-func SetupHttpServer() {
+func SetupHttpServer() *gin.Engine {
 	r := gin.Default()
-	handler.HandleUser(r)
-	r.Run(":3000")
+	return r
 }

@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vinoMamba/lazy-doc-end/params/request"
+	"github.com/vinoMamba/lazy-doc-end/params/response"
 )
 
 func HandleUser(r *gin.Engine) {
@@ -20,7 +20,13 @@ func userRegister(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("%+v\n", body)
+	c.JSON(http.StatusOK, response.UserRegisterResponse{
+		Avatar:   "",
+		Username: body.Username,
+		Email:    "",
+		UserId:   "123456",
+		Token:    "123456",
+	})
 }
 
 func userLogin(c *gin.Context) {
