@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/vinoMamba/lazy-doc-end/server"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
+	server.SetupHttpServer()
 }
