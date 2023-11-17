@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "mysql"
+    queries: [
+      "config/user.sql",
+      "config/tag.sql"
+    ]
+    schema: "config/schema.sql"
+    gen:
+      go:
+        package: "storage"
+        out: "storage"

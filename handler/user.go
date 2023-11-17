@@ -5,10 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vinoMamba/lazy-doc-end/logger"
-	"github.com/vinoMamba/lazy-doc-end/models"
 	"github.com/vinoMamba/lazy-doc-end/params/request"
-	"github.com/vinoMamba/lazy-doc-end/params/response"
-	"github.com/vinoMamba/lazy-doc-end/storage"
 	"github.com/vinoMamba/lazy-doc-end/utils"
 )
 
@@ -41,17 +38,6 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	_, err := storage.GetUserByEmail(body.Username)
-	if err == nil {
-		log.Errorln("email already exists")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    1,
-			"message": "email already exists",
-			"data":    nil,
-		})
-		return
-	}
-
 	if ok := utils.VerifyPassword(body.Password, body.ConfirmPassword); !ok {
 		log.Errorln("password verify failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -61,44 +47,6 @@ func userRegister(c *gin.Context) {
 		})
 		return
 	}
-
-	hashPassword, err := utils.HashPassword(body.Password)
-	if err != nil {
-		log.WithError(err).Errorln("Hash password failed")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    1,
-			"message": "Server Error",
-			"data":    nil,
-		})
-	}
-
-	newUser := models.User{
-		Username: body.Username,
-		Password: hashPassword,
-		Email:    body.Username,
-	}
-
-	uId, err := storage.CreateUser(c, &newUser)
-	if err != nil {
-		log.WithError(err).Errorln("Create user failed")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    1,
-			"message": "Server Error",
-			"data":    nil,
-		})
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "Success",
-		"data": response.UserRegisterResponse{
-			Avatar:   "",
-			UserId:   uId,
-			Username: body.Username,
-			Email:    body.Username,
-			Token:    "",
-		},
-	})
 }
 
 func userLogin(c *gin.Context) {
