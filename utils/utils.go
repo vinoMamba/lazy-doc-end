@@ -13,6 +13,10 @@ func Marshal(v interface{}) string {
 	return string(bytes)
 }
 
+func UnMarshal(data []byte, v interface{}) error {
+	return json.Unmarshal(data, v)
+}
+
 func VerifyPassword(password, hashedPassword string) bool {
 	return password == hashedPassword
 }

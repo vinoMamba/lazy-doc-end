@@ -66,17 +66,27 @@ func TestRegisterVerifyPassword(t *testing.T) {
 	assert.Equal(t, utils.Marshal(res), w.Body.String())
 }
 
-func TestRegisterSuccess(t *testing.T) {
-	r := server.SetupHttpServer()
-	HandleUser(r)
-	w := httptest.NewRecorder()
+func TestDuplicateRegistration(t *testing.T) {
 	reqBody := request.UserRegisterRequest{
-		Username:        "test@test.com",
+		Username:        "test@vino.com",
 		Password:        "123456",
 		ConfirmPassword: "123456",
 	}
 
+	r := server.SetupHttpServer()
+	HandleUser(r)
+	w := httptest.NewRecorder()
+
 	req := httptest.NewRequest("POST", "/user/register", strings.NewReader(utils.Marshal(reqBody)))
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
+
+	w2 := httptest.NewRecorder()
+	req2 := httptest.NewRequest("POST", "/user/register", strings.NewReader(utils.Marshal(reqBody)))
+	r.ServeHTTP(w2, req2)
+	assert.Equal(t, 500, w2.Code)
+	res := gin.H{
+		"message": "email already exists",
+	}
+	assert.Equal(t, utils.Marshal(res), w2.Body.String())
 }
