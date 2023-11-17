@@ -21,7 +21,7 @@ func TestVerifyEmail(t *testing.T) {
 	email = "1111"
 	isEmail = VerifyEmail(email)
 	assert.Equal(t, false, isEmail)
-	email = "vino@test"
+	email = "vino@test.com"
 	isEmail = VerifyEmail(email)
-	assert.Equal(t, false, isEmail)
+	assert.Equal(t, true, isEmail)
 }
