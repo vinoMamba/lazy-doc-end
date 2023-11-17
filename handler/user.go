@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vinoMamba/lazy-doc-end/logger"
 	"github.com/vinoMamba/lazy-doc-end/models"
 	"github.com/vinoMamba/lazy-doc-end/params/request"
 	"github.com/vinoMamba/lazy-doc-end/params/response"
@@ -19,64 +19,85 @@ func HandleUser(r *gin.Engine) {
 }
 
 func userRegister(c *gin.Context) {
+	log := logger.New(c)
 	var body request.UserRegisterRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
+		log.WithError(err).Errorln("Bind json failed in userRegister")
 		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
 			"message": "Bad Request",
+			"data":    nil,
 		})
 		return
 	}
 
 	if ok := utils.VerifyEmail(body.Username); !ok {
+		log.Errorln("email verify failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
 			"message": "email verify failed",
+			"data":    nil,
 		})
 		return
 	}
-	_, err := storage.GetUserByEmail(c, body.Username)
 
-	if err != nil {
+	_, err := storage.GetUserByEmail(body.Username)
+	if err == nil {
+		log.Errorln("email already exists")
 		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
 			"message": "email already exists",
+			"data":    nil,
 		})
 		return
 	}
 
 	if ok := utils.VerifyPassword(body.Password, body.ConfirmPassword); !ok {
+		log.Errorln("password verify failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
 			"message": "password verify failed",
+			"data":    nil,
 		})
 		return
 	}
 
-	hasPwd, err := utils.HashPassword(body.Password)
+	hashPassword, err := utils.HashPassword(body.Password)
 	if err != nil {
+		log.WithError(err).Errorln("Hash password failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "password hash failed",
+			"code":    1,
+			"message": "Server Error",
+			"data":    nil,
 		})
-		return
 	}
+
 	newUser := models.User{
 		Username: body.Username,
-		Password: hasPwd,
+		Password: hashPassword,
 		Email:    body.Username,
 	}
 
-	id, err := storage.CreateUser(c, &newUser)
+	uId, err := storage.CreateUser(c, &newUser)
 	if err != nil {
-		fmt.Println(err)
+		log.WithError(err).Errorln("Create user failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "create user failed",
+			"code":    1,
+			"message": "Server Error",
+			"data":    nil,
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, response.UserRegisterResponse{
-		Avatar:   "",
-		Username: body.Username,
-		Email:    body.Username,
-		UserId:   id,
-		Token:    "123456",
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "Success",
+		"data": response.UserRegisterResponse{
+			Avatar:   "",
+			UserId:   uId,
+			Username: body.Username,
+			Email:    body.Username,
+			Token:    "",
+		},
 	})
 }
 

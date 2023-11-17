@@ -16,13 +16,13 @@ func CreateUser(ctx context.Context, user *models.User) (int64, error) {
 	return id, err
 }
 
-func GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	var u models.User
-	err := db.GetContext(ctx, &u, "select * from user where email = ?", email)
+func GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := db.Get(&user, "SELECT * FROM user WHERE email = ? LIMIT 1", email)
 	if err != nil {
 		return nil, err
 	}
-	return &u, nil
+	return &user, nil
 }
 
 func DeleteUser(ctx context.Context, email string) error {
