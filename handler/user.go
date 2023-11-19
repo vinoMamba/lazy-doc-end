@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vinoMamba/lazy-doc-end/logger"
 	"github.com/vinoMamba/lazy-doc-end/params/request"
+	"github.com/vinoMamba/lazy-doc-end/storage"
 	"github.com/vinoMamba/lazy-doc-end/utils"
 )
 
@@ -47,6 +48,38 @@ func userRegister(c *gin.Context) {
 		})
 		return
 	}
+	hashedPassword, err := utils.HashPassword(body.Password)
+	if err != nil {
+		log.WithError(err).Errorln("Hash password failed")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
+			"message": "server error",
+			"data":    nil,
+		})
+		return
+	}
+	db := storage.NewQuery()
+	cUser := storage.CreateUserParams{
+		Username: body.Username,
+		Email:    body.Username,
+		Password: hashedPassword,
+	}
+	result, err := db.CreateUser(c, cUser)
+	if err != nil {
+		log.WithError(err).Errorln("Create user failed")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
+			"message": "server error",
+			"data":    nil,
+		})
+		return
+	}
+	log.WithField("result", result).Infoln("Create user success")
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    nil,
+	})
 }
 
 func userLogin(c *gin.Context) {

@@ -1,10 +1,7 @@
 version: "2"
 sql:
   - engine: "mysql"
-    queries: [
-      "config/user.sql",
-      "config/tag.sql"
-    ]
+    queries: "config/sqls"
     schema: "config/schema.sql"
     gen:
       go:

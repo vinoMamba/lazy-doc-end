@@ -21,3 +21,7 @@ func init() {
 		panic(err)
 	}
 }
+
+func NewQuery() *Queries {
+	return New(db)
+}
