@@ -89,23 +89,11 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.CreateJwt(body.Username, body.Username)
-	if err != nil {
-		log.WithError(err).Errorln("Create jwt failed")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    1,
-			"message": "server error",
-			"data":    nil,
-		})
-		return
-	}
-
 	id, _ := result.LastInsertId()
 	res := response.UserRegisterResponse{
 		Username: body.Username,
 		Email:    body.Username,
 		UserId:   id,
-		Token:    token,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -116,7 +104,57 @@ func userRegister(c *gin.Context) {
 }
 
 func userLogin(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "pong",
+	db := storage.NewQuery()
+	log := logger.New(c)
+	var body request.UserLoginRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		log.WithError(err).Errorln("Bind json failed in userRegister")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "Bad Request",
+			"data":    nil,
+		})
+		return
+	}
+	u, err := db.GetUserByEmail(c, body.Username)
+	if err != nil {
+		log.WithError(err).Errorln("Get user failed")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "No such user",
+			"data":    nil,
+		})
+		return
+	}
+
+	if ok := utils.CheckHashPassword(u.Password, body.Password); !ok {
+		log.WithField("email", body.Username).Warnln("the password is wrong")
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    1,
+			"message": "The password is wrong",
+			"data":    nil,
+		})
+		return
+	}
+	token, err := utils.CreateJwt(u.Email, u.Username)
+	if err != nil {
+		log.WithError(err).Errorln("Create jwt failed")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
+			"message": "server error",
+			"data":    nil,
+		})
+		return
+	}
+	res := response.UserLoginResponse{
+		Username: u.Username,
+		Email:    u.Email,
+		UserId:   u.ID,
+		Token:    token,
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    res,
 	})
 }
