@@ -13,7 +13,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestJwt(t *testing.T) {
-	token, err := CreateJwt("vino", "vino@qq.com")
+	token, err := CreateJwt(1, "vino", "vino@qq.com")
 	if err != nil {
 		t.Error(err)
 	}

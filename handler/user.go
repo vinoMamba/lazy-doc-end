@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vinoMamba/lazy-doc-end/logger"
+	"github.com/vinoMamba/lazy-doc-end/middlewares"
 	"github.com/vinoMamba/lazy-doc-end/params/request"
 	"github.com/vinoMamba/lazy-doc-end/params/response"
 	"github.com/vinoMamba/lazy-doc-end/storage"
@@ -15,6 +16,7 @@ func HandleUser(r *gin.Engine) {
 	ug := r.Group("/user")
 	ug.POST("/register", userRegister)
 	ug.POST("/login", userLogin)
+	ug.Use(middlewares.AuthMiddleware).PUT("/update", userUpdate)
 }
 
 func userRegister(c *gin.Context) {
@@ -136,7 +138,7 @@ func userLogin(c *gin.Context) {
 		})
 		return
 	}
-	token, err := utils.CreateJwt(u.Email, u.Username)
+	token, err := utils.CreateJwt(u.ID, u.Email, u.Username)
 	if err != nil {
 		log.WithError(err).Errorln("Create jwt failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -156,5 +158,41 @@ func userLogin(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data":    res,
+	})
+}
+
+func userUpdate(c *gin.Context) {
+	log := logger.New(c)
+	db := storage.NewQuery()
+	var body request.UserUpdateRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "Bad Request",
+			"data":    nil,
+		})
+		return
+	}
+	id := utils.GetCurrentUserId(c)
+	log.Infof("body: %v", id)
+	updateParams := storage.UpdateUserByIdParams{
+		Username: body.Username,
+		ID:       id,
+	}
+	_, err := db.UpdateUserById(c, updateParams)
+	if err != nil {
+		log.WithError(err).Errorln("Update user failed")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
+			"message": "server error",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    nil,
 	})
 }

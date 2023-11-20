@@ -1,19 +1,22 @@
 package utils
 
 import (
+	"strconv"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/vinoMamba/lazy-doc-end/config"
 )
 
-func CreateJwt(email, username string) (string, error) {
+func CreateJwt(userId int64, email, username string) (string, error) {
 	iat := time.Now()
 	exp := iat.Add(time.Hour * 24 * 7)
 	jwtKey := []byte(config.GetJwtSecret())
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user": map[string]string{
+			"id":       strconv.FormatInt(userId, 10),
 			"email":    email,
 			"username": username,
 		},
@@ -36,4 +39,16 @@ func VerifyJwt(tokenString string) (*jwt.MapClaims, bool, error) {
 	} else {
 		return nil, false, nil
 	}
+}
+
+func GetCurrentUsername(c *gin.Context) string {
+	mapClaims := c.MustGet("cliams").(*jwt.MapClaims)
+	return (*mapClaims)["user"].(map[string]interface{})["username"].(string)
+}
+
+func GetCurrentUserId(c *gin.Context) int64 {
+	mapClaims := c.MustGet("cliams").(*jwt.MapClaims)
+	idStr := (*mapClaims)["user"].(map[string]interface{})["id"].(string)
+	id, _ := strconv.ParseInt(idStr, 10, 64)
+	return id
 }
