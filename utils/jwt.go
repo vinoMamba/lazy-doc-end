@@ -46,6 +46,11 @@ func GetCurrentUsername(c *gin.Context) string {
 	return (*mapClaims)["user"].(map[string]interface{})["username"].(string)
 }
 
+func GetCurrentEmail(c *gin.Context) string {
+	mapClaims := c.MustGet("cliams").(*jwt.MapClaims)
+	return (*mapClaims)["user"].(map[string]interface{})["email"].(string)
+}
+
 func GetCurrentUserId(c *gin.Context) int64 {
 	mapClaims := c.MustGet("cliams").(*jwt.MapClaims)
 	idStr := (*mapClaims)["user"].(map[string]interface{})["id"].(string)
