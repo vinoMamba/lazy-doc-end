@@ -123,7 +123,7 @@ func userLogin(c *gin.Context) {
 	u, err := db.GetUserByEmail(c, body.Username)
 	if err != nil {
 		log.WithError(err).Errorln("Get user failed")
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"code":    1,
 			"message": "No such user",
 			"data":    nil,
@@ -133,7 +133,7 @@ func userLogin(c *gin.Context) {
 
 	if ok := utils.CheckHashPassword(u.Password, body.Password); !ok {
 		log.WithField("email", body.Username).Warnln("the password is wrong")
-		c.JSON(http.StatusUnauthorized, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"code":    1,
 			"message": "The password is wrong",
 			"data":    nil,
