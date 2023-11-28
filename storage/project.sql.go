@@ -15,11 +15,11 @@ INSERT INTO project (project_name, project_description, is_public, is_deleted, c
 `
 
 type CreateProjectParams struct {
-	ProjectName        string
-	ProjectDescription sql.NullString
-	IsPublic           sql.NullBool
-	IsDeleted          sql.NullBool
-	CreatedBy          int64
+	ProjectName        string         `json:"projectName"`
+	ProjectDescription sql.NullString `json:"projectDescription"`
+	IsPublic           sql.NullInt32  `json:"isPublic"`
+	IsDeleted          sql.NullInt32  `json:"isDeleted"`
+	CreatedBy          int64          `json:"createdBy"`
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (sql.Result, error) {
@@ -37,8 +37,8 @@ SELECT id, project_name, project_description, is_public, is_deleted, created_by,
 `
 
 type GetProjectListParams struct {
-	Limit  int32
-	Offset int32
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) GetProjectList(ctx context.Context, arg GetProjectListParams) ([]Project, error) {

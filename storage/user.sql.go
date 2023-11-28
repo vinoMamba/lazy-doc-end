@@ -15,9 +15,9 @@ INSERT INTO user (username, email, password) VALUES (?, ?, ?)
 `
 
 type CreateUserParams struct {
-	Username string
-	Email    string
-	Password string
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error) {
@@ -83,8 +83,8 @@ UPDATE user SET email = ? WHERE id = ?
 `
 
 type UpdateEmailByIdParams struct {
-	Email string
-	ID    int64
+	Email string `json:"email"`
+	ID    int64  `json:"id"`
 }
 
 func (q *Queries) UpdateEmailById(ctx context.Context, arg UpdateEmailByIdParams) (sql.Result, error) {
@@ -96,8 +96,8 @@ UPDATE user SET username = ? WHERE id = ?
 `
 
 type UpdateUsernameByIdParams struct {
-	Username string
-	ID       int64
+	Username string `json:"username"`
+	ID       int64  `json:"id"`
 }
 
 func (q *Queries) UpdateUsernameById(ctx context.Context, arg UpdateUsernameByIdParams) (sql.Result, error) {

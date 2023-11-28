@@ -9,22 +9,38 @@ import (
 	"time"
 )
 
+// 项目表
 type Project struct {
-	ID                 int64
-	ProjectName        string
-	ProjectDescription sql.NullString
-	IsPublic           sql.NullBool
-	IsDeleted          sql.NullBool
-	CreatedBy          int64
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	// 项目ID
+	ID int64 `json:"id"`
+	// 项目名称
+	ProjectName string `json:"projectName"`
+	// 项目描述
+	ProjectDescription sql.NullString `json:"projectDescription"`
+	// 是否公开 0：是 1：否
+	IsPublic sql.NullInt32 `json:"isPublic"`
+	// 是否删除 0：未删除 1：删除
+	IsDeleted sql.NullInt32 `json:"isDeleted"`
+	// 创建人
+	CreatedBy int64 `json:"createdBy"`
+	// 创建时间
+	CreatedAt time.Time `json:"createdAt"`
+	// 更新时间
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// 用户表
 type User struct {
-	ID        int64
-	Username  string
-	Email     string
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	// 用户ID
+	ID int64 `json:"id"`
+	// 用户名
+	Username string `json:"username"`
+	// 邮箱
+	Email string `json:"email"`
+	// 密码
+	Password string `json:"password"`
+	// 创建时间
+	CreatedAt time.Time `json:"createdAt"`
+	// 更新时间
+	UpdatedAt time.Time `json:"updatedAt"`
 }

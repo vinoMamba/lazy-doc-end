@@ -48,12 +48,12 @@ func projectCreate(c *gin.Context) {
 			Valid:  true,
 		},
 		CreatedBy: userId,
-		IsPublic: sql.NullBool{
-			Bool:  true,
+		IsPublic: sql.NullInt32{
+			Int32: 0,
 			Valid: true,
 		},
-		IsDeleted: sql.NullBool{
-			Bool:  false,
+		IsDeleted: sql.NullInt32{
+			Int32: 0,
 			Valid: true,
 		},
 	})
@@ -76,5 +76,40 @@ func projectCreate(c *gin.Context) {
 }
 
 func projectGetList(c *gin.Context) {
+	db := storage.NewQuery()
+	log := logger.New(c)
+	// 读取query参数
+	var params request.ProejctListRequest
 
+	if err := c.Bind(&params); err != nil {
+		log.Error(err)
+		c.JSON(http.StatusOK, gin.H{
+			"code":    1,
+			"message": "Bad Request",
+			"data":    nil,
+		})
+		return
+	}
+
+	query := storage.GetProjectListParams{
+		Limit:  int32(params.PageNum),
+		Offset: int32((params.PageSize - 1) * 10),
+	}
+	log.Infof("query: %v\n", utils.Marshal(query))
+	list, err := db.GetProjectList(c, query)
+	if err != nil {
+		log.WithError(err).Errorln("create project failed")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
+			"message": "server error",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    list,
+	})
 }
