@@ -24,35 +24,51 @@ func userRegister(c *gin.Context) {
 	var body request.UserRegisterRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		log.WithError(err).Errorln("Bind json failed in userRegister")
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Bad Request",
+		})
 		return
 	}
 
 	if ok := utils.VerifyEmail(body.Email); !ok {
 		log.Errorln("Email verify failed")
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Email verify failed",
+		})
 		return
 	}
 
 	var u model.User
 
 	db.Where("email = ?", body.Email).First(&u)
+
 	if u.ID != 0 {
 		log.WithField("email", u.Email).Errorln("The email has been registered")
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+			"code":    409,
+			"message": "The email has been registered",
+		})
 		return
 	}
 
 	if ok := utils.VerifyPassword(body.Password, body.ConfirmPassword); !ok {
-		log.Errorln("password verify failed")
-		c.AbortWithStatus(http.StatusBadRequest)
+		log.Errorln("The password is not equal to confirm password")
+		c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+			"code":    400,
+			"message": "The password is not equal to confirm password",
+		})
 		return
 	}
 
 	hashedPassword, err := utils.HashPassword(body.Password)
 	if err != nil {
 		log.WithError(err).Errorln("Hash password failed")
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Server error",
+		})
 		return
 	}
 
@@ -64,10 +80,16 @@ func userRegister(c *gin.Context) {
 	result := db.Create(&u)
 	if result.Error != nil {
 		log.WithError(result.Error).Errorln("Create user failed")
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Server error",
+		})
 		return
 	}
-	c.AbortWithStatus(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+	})
 }
 
 func userLogin(c *gin.Context) {
