@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func DbConn() {
 	var err error
@@ -20,18 +20,14 @@ func DbConn() {
 		mysqlConfig.Port,
 		mysqlConfig.Database,
 	)
-	db, err = gorm.Open(mysql.Open(dns), &gorm.Config{})
+	DB, err = gorm.Open(mysql.Open(dns), &gorm.Config{})
 
 	if err != nil {
 		panic(err)
 	}
 
-	err = db.Exec("select 1;").Error
+	err = DB.Exec("select 1;").Error
 	if err != nil {
 		panic(err)
 	}
-}
-
-func GetDB() *gorm.DB {
-	return db
 }
