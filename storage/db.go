@@ -4,15 +4,11 @@ import (
 	"fmt"
 
 	"github.com/vinoMamba/lazy-doc-end/config"
-	"github.com/vinoMamba/lazy-doc-end/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 var db *gorm.DB
-
-func init() {
-}
 
 func DbConn() {
 	var err error
@@ -29,9 +25,13 @@ func DbConn() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&model.User{})
+
+	err = db.Exec("select 1;").Error
+	if err != nil {
+		panic(err)
+	}
 }
 
-func GetDb() *gorm.DB {
+func GetDB() *gorm.DB {
 	return db
 }
