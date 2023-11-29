@@ -15,6 +15,5 @@ func init() {
 func main() {
 	r := server.SetupHttpServer()
 	handler.HandleUser(r)
-	handler.HandleProject(r)
 	r.Run(":3000")
 }

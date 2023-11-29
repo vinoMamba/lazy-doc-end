@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vinoMamba/lazy-doc-end/logger"
 	"github.com/vinoMamba/lazy-doc-end/middlewares"
+	"github.com/vinoMamba/lazy-doc-end/model"
 	"github.com/vinoMamba/lazy-doc-end/params/request"
 	"github.com/vinoMamba/lazy-doc-end/params/response"
 	"github.com/vinoMamba/lazy-doc-end/storage"
@@ -17,11 +18,10 @@ func HandleUser(r *gin.Engine) {
 	ug.POST("/register", userRegister)
 	ug.POST("/login", userLogin)
 	ug.Use(middlewares.AuthMiddleware).PUT("/username", userUpdateUsername)
-	ug.Use(middlewares.AuthMiddleware).PUT("/email", userUpdateEmail)
 }
 
 func userRegister(c *gin.Context) {
-	db := storage.NewQuery()
+	db := storage.GetDb()
 	log := logger.New(c)
 	var body request.UserRegisterRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -44,7 +44,9 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	u, _ := db.GetUserByEmail(c, body.Username)
+	var u model.User
+
+	db.Where("email = ?", body.Username).First(&u)
 	if u.ID != 0 {
 		log.WithField("email", u.Email).Warnln("the email has been registered")
 		c.JSON(http.StatusOK, gin.H{
@@ -76,15 +78,14 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	cUser := storage.CreateUserParams{
+	u = model.User{
 		Username: body.Username,
 		Email:    body.Username,
 		Password: hashedPassword,
 	}
-	result, err := db.CreateUser(c, cUser)
-
-	if err != nil {
-		log.WithError(err).Errorln("Create user failed")
+	result := db.Create(&u)
+	if result.Error != nil {
+		log.WithError(result.Error).Errorln("Create user failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    1,
 			"message": "server error",
@@ -93,22 +94,15 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	id, _ := result.LastInsertId()
-	res := response.UserRegisterResponse{
-		Username: body.Username,
-		Email:    body.Username,
-		UserId:   id,
-	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    res,
+		"data":    nil,
 	})
 }
 
 func userLogin(c *gin.Context) {
-	db := storage.NewQuery()
+	db := storage.GetDb()
 	log := logger.New(c)
 	var body request.UserLoginRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -120,12 +114,13 @@ func userLogin(c *gin.Context) {
 		})
 		return
 	}
-	u, err := db.GetUserByEmail(c, body.Username)
-	if err != nil {
-		log.WithError(err).Errorln("Get user failed")
+	var u model.User
+	db.Where("username = ?", body.Username).First(&u)
+	if u.ID == 0 {
+		log.WithField("email", body.Username).Warnln("the email has not been registered")
 		c.JSON(http.StatusOK, gin.H{
 			"code":    1,
-			"message": "No such user",
+			"message": "The email has not been registered",
 			"data":    nil,
 		})
 		return
@@ -140,7 +135,8 @@ func userLogin(c *gin.Context) {
 		})
 		return
 	}
-	token, err := utils.CreateJwt(u.ID, u.Email, u.Username)
+
+	token, err := utils.CreateJwt(int64(u.ID), u.Email, u.Username)
 	if err != nil {
 		log.WithError(err).Errorln("Create jwt failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -153,7 +149,6 @@ func userLogin(c *gin.Context) {
 	res := response.UserLoginResponse{
 		Username: u.Username,
 		Email:    u.Email,
-		UserId:   u.ID,
 		Token:    token,
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -165,7 +160,7 @@ func userLogin(c *gin.Context) {
 
 func userUpdateUsername(c *gin.Context) {
 	log := logger.New(c)
-	db := storage.NewQuery()
+	db := storage.GetDb()
 	var body request.UserUpdateUsernameRequest
 
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -188,94 +183,11 @@ func userUpdateUsername(c *gin.Context) {
 		return
 	}
 
-	u, _ := db.GetUserByUsername(c, body.Username)
-	if u.ID != 0 {
-		log.WithField("username", u.Username).Warnln("the username has been registered")
-		c.JSON(http.StatusConflict, gin.H{
-			"code":    1,
-			"message": "The username has been registered",
-			"data":    nil,
-		})
-		return
-	}
+	var u model.User
 
-	updateParams := storage.UpdateUsernameByIdParams{
-		Username: body.Username,
-		ID:       id,
-	}
-
-	_, err := db.UpdateUsernameById(c, updateParams)
-	if err != nil {
-		log.WithError(err).Errorln("Update user failed")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    1,
-			"message": "server error",
-			"data":    nil,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    nil,
-	})
-}
-
-func userUpdateEmail(c *gin.Context) {
-	log := logger.New(c)
-	db := storage.NewQuery()
-	var body request.UserUpdateEmailRequest
-
-	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    1,
-			"message": "Bad Request",
-			"data":    nil,
-		})
-		return
-	}
-	id := utils.GetCurrentUserId(c)
-	currentEmail := utils.GetCurrentEmail(c)
-
-	if currentEmail == body.Email {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data":    nil,
-		})
-		return
-	}
-
-	if ok := utils.VerifyEmail(body.Email); !ok {
-		log.Errorln("email verify failed")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    1,
-			"message": "email verify failed",
-			"data":    nil,
-		})
-		return
-	}
-
-	u, _ := db.GetUserByEmail(c, body.Email)
-	if u.ID != 0 {
-		log.WithField("email", u.Email).Warnln("the email has been registered")
-		c.JSON(http.StatusConflict, gin.H{
-			"code":    1,
-			"message": "The emial has been registered",
-			"data":    nil,
-		})
-		return
-	}
-
-	updateParams := storage.UpdateEmailByIdParams{
-		Email: body.Email,
-		ID:    id,
-	}
-
-	_, err := db.UpdateEmailById(c, updateParams)
-	if err != nil {
-		log.WithError(err).Errorln("Update user failed")
+	result := db.Model(&u).Where("id = ?", id).Update("username", body.Username)
+	if result.Error != nil {
+		log.WithError(result.Error).Errorln("Update user failed")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    1,
 			"message": "server error",
