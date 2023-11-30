@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vinoMamba/lazy-doc-end/logger"
-	"github.com/vinoMamba/lazy-doc-end/model"
+	"github.com/vinoMamba/lazy-doc-end/models"
 	"github.com/vinoMamba/lazy-doc-end/params/request"
 	"github.com/vinoMamba/lazy-doc-end/storage"
 	"github.com/vinoMamba/lazy-doc-end/utils"
@@ -67,7 +67,7 @@ func userRegister(c *gin.Context) {
 		return
 	}
 
-	u := model.User{
+	u := models.User{
 		Username: body.Email,
 		Email:    body.Email,
 		Password: hashedPassword,
@@ -112,7 +112,7 @@ func userLogin(c *gin.Context) {
 	u, err := storage.GetUserByEmail(c, body.Email)
 
 	if err != nil {
-		log.WithField("email", body.Email).Errorln("User not found")
+		log.WithError(err).Errorln("Get user by email failed")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"code":    401,
 			"message": "User not found",
@@ -128,7 +128,7 @@ func userLogin(c *gin.Context) {
 		})
 		return
 	}
-	token, err := utils.CreateJwt(int64(u.ID), u.Username, u.Email)
+	token, err := utils.CreateJwt(u.Id, u.Username, u.Email)
 	if err != nil {
 		log.WithError(err).Errorln("Create jwt failed")
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{

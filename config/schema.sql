@@ -5,7 +5,6 @@ CREATE TABLE users (
   password varchar(255) NOT NULL COMMENT '密码',
   created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
   updated_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '更新时间'
-  deleted_at datetime DEFAULT NULL COMMENT '删除时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
 
 
