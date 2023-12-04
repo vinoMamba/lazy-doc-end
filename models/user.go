@@ -7,3 +7,12 @@ type User struct {
 	Password string `json:"password"`
 	CommonTimestampsFields
 }
+
+type Project struct {
+	BaseModel
+	ProjectName string
+	ProejctDesc string `gorm:"column:project_description"`
+	IsPublic    int    `gorm:"column:is_public"`
+	CreatedBy   int64  `gorm:"column:created_by"`
+	CommonTimestampsFields
+}
