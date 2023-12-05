@@ -17,3 +17,7 @@ func GetUserByEmail(c context.Context, email string) (*models.User, error) {
 	}
 	return &u, nil
 }
+
+func UpdateUser(c context.Context, email string, u *models.User) error {
+	return DB.WithContext(c).Where("email = ?", email).Updates(u).Error
+}
