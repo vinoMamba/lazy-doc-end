@@ -10,9 +10,9 @@ type User struct {
 
 type Project struct {
 	BaseModel
-	ProjectName string
-	ProejctDesc string `gorm:"column:project_description"`
-	IsPublic    int    `gorm:"column:is_public"`
-	CreatedBy   int64  `gorm:"column:created_by"`
+	ProjectName string `gorm:"column:project_name" json:"projectName"`
+	ProejctDesc string `gorm:"column:project_description" json:"projectDesc"`
+	IsPublic    string `gorm:"column:is_public" json:"isPublic"`
+	CreatedBy   int64  `gorm:"column:created_by" json:"-"`
 	CommonTimestampsFields
 }
