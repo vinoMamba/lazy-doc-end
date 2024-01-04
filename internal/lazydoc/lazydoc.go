@@ -22,10 +22,9 @@ THE SOFTWARE.
 package lazydoc
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/vinoMamba/lazydoc/internal/pkg/log"
 )
 
 var cfgFile string
@@ -35,11 +34,14 @@ func NewRootCmd() *cobra.Command {
 		Use:   "lazydoc",
 		Short: "lazydoc",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			log.InitLogger(logOptions())
+			defer log.Sync()
+
 			return run()
 		},
 		Args: func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
-				fmt.Println("arg", arg)
+				log.Infow("arg", "arg", arg)
 			}
 			return nil
 		},
@@ -51,7 +53,6 @@ func NewRootCmd() *cobra.Command {
 }
 
 func run() error {
-	fmt.Println(viper.GetString("gin.mode"))
-	fmt.Println("run")
+	log.Infow("run", "mode", viper.GetString("gin.mode"))
 	return nil
 }
