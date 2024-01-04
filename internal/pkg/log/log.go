@@ -1,9 +1,12 @@
 package log
 
 import (
+	"context"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/vinoMamba/lazydoc/internal/pkg/known"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -122,4 +125,25 @@ func (l *zapLogger) Fatalw(msg string, keysAndValues ...interface{}) {
 }
 func Fatalw(msg string, keysAndValues ...interface{}) {
 	std.z.Sugar().Fatalw(msg, keysAndValues...)
+}
+
+func C(ctx context.Context) *zapLogger {
+	return std.C(ctx)
+}
+
+func (l *zapLogger) C(ctx context.Context) *zapLogger {
+	lc := l.clone()
+	//打印ctx
+	fmt.Println(ctx)
+
+	if requestID := ctx.Value(known.XRequestIDKey); requestID != nil {
+		lc.z = lc.z.With(zap.Any(known.XRequestIDKey, requestID))
+	}
+
+	return lc
+}
+
+func (l *zapLogger) clone() *zapLogger {
+	lc := *l
+	return &lc
 }
