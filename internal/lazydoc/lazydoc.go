@@ -27,8 +27,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/vinoMamba/lazydoc/internal/pkg/core"
-	"github.com/vinoMamba/lazydoc/internal/pkg/errno"
 	"github.com/vinoMamba/lazydoc/internal/pkg/log"
 	"github.com/vinoMamba/lazydoc/internal/pkg/middleware"
 )
@@ -61,22 +59,18 @@ func NewRootCmd() *cobra.Command {
 func run() error {
 	gin.SetMode(viper.GetString("gin.mode"))
 	g := gin.New()
-
 	g.Use(
 		middleware.Cors(),
 		middleware.RequestId(),
 	)
 
-	g.NoRoute(func(c *gin.Context) {
-		core.WriteResponse(c, errno.NotFound, nil)
-	})
-
-	g.POST("/user/register", func(c *gin.Context) {
-		core.WriteResponse(c, nil, "pong")
-	})
+	if err := registerAllApis(g); err != nil {
+		return err
+	}
 
 	httpsrv := &http.Server{Addr: viper.GetString("gin.port"), Handler: g}
 	log.Infow("Server success", "addr", viper.GetString("gin.port"))
+
 	if err := httpsrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalw("ListenAndServe error", "err", err)
 	}
