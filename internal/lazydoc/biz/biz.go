@@ -6,19 +6,17 @@ import (
 )
 
 type IBiz interface {
-	Users() user.UserBiz
+	User() user.UserBiz
 }
 
-type biz struct {
+type Biz struct {
 	ds store.IStore
 }
 
-var _ IBiz = (*biz)(nil)
-
-func NewBiz(ds store.IStore) *biz {
-	return &biz{ds}
+func NewBiz(db store.IStore) *Biz {
+	return &Biz{db}
 }
 
-func (b *biz) Users() user.UserBiz {
+func (b *Biz) User() user.UserBiz {
 	return user.New(b.ds)
 }

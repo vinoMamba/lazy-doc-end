@@ -5,6 +5,7 @@ go 1.21.3
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.4.0
+	github.com/jinzhu/copier v0.4.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	go.uber.org/zap v1.21.0

@@ -13,7 +13,7 @@ func registerAllApis(g *gin.Engine) error {
 	register404Route(g)
 
 	uc := user.New(store.Ds)
-	g.POST("/user/register", uc.Register)
+	g.POST("/user/register", uc.RegisterController)
 
 	return nil
 }
