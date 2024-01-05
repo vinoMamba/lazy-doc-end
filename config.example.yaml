@@ -1,11 +1,15 @@
 gin:
-  mode: "debug"
-  port: "8080"
-jwt:
-  secret: "qwerty"
+  mode: debug #gin 开发模式
+  port: :3000 #http服务端口
 mysql:
-  username: "root"
-  password: "123456"
-  host: "localhost"
-  port: "3306"
-  database: "lazy_doc"
+  host: localhost:3306
+  username: root
+  password: 123456
+  database: lazy_doc
+  log-level: 4
+log:
+  disable-caller: false
+  disable-stacktrace: false
+  level: debug
+  format: console
+  output-paths: [/tmp/lazydoc.log, stdout]

@@ -7,7 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/vinoMamba/lazydoc/internal/lazydoc/store"
 	"github.com/vinoMamba/lazydoc/internal/pkg/log"
+	"github.com/vinoMamba/lazydoc/pkg/db"
 )
 
 const (
@@ -48,4 +50,24 @@ func logOptions() *log.Options {
 		Format:            viper.GetString("log.format"),
 		OutputPaths:       viper.GetStringSlice("log.output-paths"),
 	}
+}
+
+func initStore() error {
+	mysqlOpts := &db.MySqlOpts{
+		Host:     viper.GetString("mysql.host"),
+		Username: viper.GetString("mysql.username"),
+		Password: viper.GetString("mysql.password"),
+		Database: viper.GetString("mysql.database"),
+		LogLevel: viper.GetInt("mysql.log-level"),
+	}
+	d, err := db.NewMySql(mysqlOpts)
+
+	if err != nil {
+		return err
+	}
+
+	store.NewStore(d)
+
+	log.Infow("Store initialized", "store", "mysql")
+	return nil
 }

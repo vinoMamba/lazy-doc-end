@@ -57,6 +57,11 @@ func NewRootCmd() *cobra.Command {
 }
 
 func run() error {
+
+	if err := initStore(); err != nil {
+		return err
+	}
+
 	gin.SetMode(viper.GetString("gin.mode"))
 	g := gin.New()
 	g.Use(
