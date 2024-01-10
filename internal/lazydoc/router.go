@@ -14,6 +14,7 @@ func registerAllApis(g *gin.Engine) error {
 
 	uc := user.New(store.Ds)
 	g.POST("/user/register", uc.RegisterController)
+	g.POST("/user/login", uc.LoginController)
 
 	return nil
 }

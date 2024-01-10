@@ -7,4 +7,6 @@ var (
 	BadRequest           = &Errno{Status: 400, Code: "BadRequest", Message: "Bad request."}
 	ErrEmailAlreadyInUse = &Errno{Status: 400, Code: "ErrEmailAlreadyInUse", Message: "The email address is already in use."}
 	ErrConfirmPassword   = &Errno{Status: 400, Code: "ErrConfirmPassword", Message: "The password and confirmation password do not match."}
+	ErrPassswordNotMatch = &Errno{Status: 400, Code: "ErrPassswordNotMatch", Message: "The password was not match."}
+	ErrUserNotFound      = &Errno{Status: 400, Code: "ErrUserNotFound", Message: "The user was not found."}
 )

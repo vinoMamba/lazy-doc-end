@@ -27,9 +27,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/vinoMamba/lazydoc/internal/pkg/known"
 	"github.com/vinoMamba/lazydoc/internal/pkg/log"
 	"github.com/vinoMamba/lazydoc/internal/pkg/middleware"
 	"github.com/vinoMamba/lazydoc/pkg/id"
+	"github.com/vinoMamba/lazydoc/pkg/token"
 )
 
 var cfgFile string
@@ -66,6 +68,8 @@ func run() error {
 	if err := initStore(); err != nil {
 		return err
 	}
+
+	token.Init(viper.GetString("jwt.key"), known.XEmailKey)
 
 	gin.SetMode(viper.GetString("gin.mode"))
 	g := gin.New()
