@@ -9,4 +9,6 @@ var (
 	ErrConfirmPassword   = &Errno{Status: 400, Code: "ErrConfirmPassword", Message: "The password and confirmation password do not match."}
 	ErrPassswordNotMatch = &Errno{Status: 400, Code: "ErrPassswordNotMatch", Message: "The password was not match."}
 	ErrUserNotFound      = &Errno{Status: 400, Code: "ErrUserNotFound", Message: "The user was not found."}
+
+	ErrTokenInvalid = &Errno{Status: 401, Code: "ErrTokenInvalid", Message: "The token was invalid."}
 )

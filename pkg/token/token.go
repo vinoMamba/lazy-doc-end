@@ -1,10 +1,13 @@
 package token
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/vinoMamba/lazydoc/internal/pkg/errno"
 )
 
 type Config struct {
@@ -37,6 +40,16 @@ func GenerateJWT(identityKey string) (string, error) {
 		"exp":              now.Add(tokenDuration).Unix(),
 	})
 	return t.SignedString([]byte(config.key))
+}
+
+func GetToken(c *gin.Context) (string, error) {
+	auth := c.GetHeader("Authorization")
+	if auth == "" {
+		return "", errno.ErrTokenInvalid
+	}
+	var t string
+	fmt.Sscanf(auth, "Bearer %s", &t)
+	return Parse(t, config.key)
 }
 
 func Parse(token, key string) (string, error) {

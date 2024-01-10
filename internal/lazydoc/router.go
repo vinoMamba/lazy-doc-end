@@ -6,6 +6,7 @@ import (
 	"github.com/vinoMamba/lazydoc/internal/lazydoc/store"
 	"github.com/vinoMamba/lazydoc/internal/pkg/core"
 	"github.com/vinoMamba/lazydoc/internal/pkg/errno"
+	"github.com/vinoMamba/lazydoc/internal/pkg/middleware"
 )
 
 func registerAllApis(g *gin.Engine) error {
@@ -13,8 +14,11 @@ func registerAllApis(g *gin.Engine) error {
 	register404Route(g)
 
 	uc := user.New(store.Ds)
-	g.POST("/user/register", uc.RegisterController)
-	g.POST("/user/login", uc.LoginController)
+	userGroup := g.Group("/user")
+	userGroup.POST("/register", uc.RegisterController)
+	userGroup.POST("/login", uc.LoginController)
+	userGroup.Use(middleware.Auth())
+	userGroup.GET("/info", uc.UserInfoController)
 
 	return nil
 }

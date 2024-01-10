@@ -140,6 +140,10 @@ func (l *zapLogger) C(ctx context.Context) *zapLogger {
 		lc.z = lc.z.With(zap.Any(known.XRequestIDKey, requestID))
 	}
 
+	if email := ctx.Value(known.XEmailKey); email != nil {
+		lc.z = lc.z.With(zap.Any(known.XEmailKey, email))
+	}
+
 	return lc
 }
 

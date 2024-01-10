@@ -17,6 +17,7 @@ import (
 type UserBiz interface {
 	RegisterBiz(c context.Context, req *request.CreateUserRequest) error
 	LoginBiz(c context.Context, req *request.LoginRequest) (*response.LoginResponse, error)
+	GetUserInfoBiz(c context.Context, email string) (*response.UserInfoResponse, error)
 }
 
 type userBiz struct {
@@ -61,4 +62,14 @@ func (biz *userBiz) LoginBiz(c context.Context, req *request.LoginRequest) (*res
 		return nil, errno.InternalServerError
 	}
 	return &response.LoginResponse{Token: t}, nil
+}
+
+func (biz *userBiz) GetUserInfoBiz(c context.Context, email string) (*response.UserInfoResponse, error) {
+	u, err := biz.ds.Users().GetUserByEmail(c, email)
+	if err != nil {
+		return nil, errno.ErrUserNotFound
+	}
+	var userInfo response.UserInfoResponse
+	_ = copier.Copy(&userInfo, u)
+	return &userInfo, nil
 }
