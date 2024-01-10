@@ -2,7 +2,7 @@ package lazydoc
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/vinoMamba/lazydoc/internal/lazydoc/controller/v1/user"
+	"github.com/vinoMamba/lazydoc/internal/lazydoc/controller/user"
 	"github.com/vinoMamba/lazydoc/internal/lazydoc/store"
 	"github.com/vinoMamba/lazydoc/internal/pkg/core"
 	"github.com/vinoMamba/lazydoc/internal/pkg/errno"

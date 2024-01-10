@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vinoMamba/lazydoc/internal/pkg/log"
 	"github.com/vinoMamba/lazydoc/internal/pkg/middleware"
+	"github.com/vinoMamba/lazydoc/pkg/id"
 )
 
 var cfgFile string
@@ -57,6 +58,10 @@ func NewRootCmd() *cobra.Command {
 }
 
 func run() error {
+	// 初始化snowflake id
+	if err := id.Init("2024-01-01 00:00:00", 1); err != nil {
+		return err
+	}
 
 	if err := initStore(); err != nil {
 		return err
