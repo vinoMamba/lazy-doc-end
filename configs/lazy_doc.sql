@@ -15,7 +15,7 @@ CREATE TABLE `users` (
 -- 项目表
 CREATE TABLE `projects` (
   `id` bigint NOT NULL  COMMENT '项目ID', 
-  `project_name` varchar(64) DEFAULT NULL COMMENT '项目名称',
+  `project_name` varchar(64) NOT NULL COMMENT '项目名称',
   `project_desc` varchar(255) DEFAULT NULL COMMENT '项目描述',
   `status` tinyint DEFAULT '0' COMMENT '项目状态 0: 私密 1: 公开',
   `is_deleted` tinyint DEFAULT '0' COMMENT '是否删除 0: 否，1: 是',

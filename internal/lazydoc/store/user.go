@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 
+	"github.com/vinoMamba/lazydoc/internal/pkg/log"
 	"github.com/vinoMamba/lazydoc/internal/pkg/model"
 	"gorm.io/gorm"
 )
@@ -24,6 +25,7 @@ func newUsers(db *gorm.DB) *users {
 }
 
 func (s *users) Create(c context.Context, user *model.UserM) error {
+	log.C(c).Infow("email")
 	return s.db.Create(&user).Error
 }
 
