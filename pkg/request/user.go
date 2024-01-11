@@ -15,3 +15,7 @@ type UpdatePasswordRequest struct {
 	OldPassword string `json:"oldPassword" valid:"required"`
 	NewPassword string `json:"newPassword" valid:"required"`
 }
+
+type UpdateUserInfoRequest struct {
+	Username string `json:"username"`
+}
