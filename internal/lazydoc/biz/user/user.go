@@ -18,6 +18,7 @@ type UserBiz interface {
 	RegisterBiz(c context.Context, req *request.CreateUserRequest) error
 	LoginBiz(c context.Context, req *request.LoginRequest) (*response.LoginResponse, error)
 	GetUserInfoBiz(c context.Context, email string) (*response.UserInfoResponse, error)
+	UpdatePasswordBiz(c context.Context, email string, req *request.UpdatePasswordRequest) error
 }
 
 type userBiz struct {
@@ -72,4 +73,22 @@ func (biz *userBiz) GetUserInfoBiz(c context.Context, email string) (*response.U
 	var userInfo response.UserInfoResponse
 	_ = copier.Copy(&userInfo, u)
 	return &userInfo, nil
+}
+
+func (biz *userBiz) UpdatePasswordBiz(c context.Context, email string, req *request.UpdatePasswordRequest) error {
+	u, err := biz.ds.Users().GetUserByEmail(c, email)
+	if err != nil {
+		return errno.ErrUserNotFound
+	}
+
+	if ok := crypt.ComparePassword(u.Password, req.OldPassword); !ok {
+		return errno.ErrPassswordNotMatch
+	}
+
+	u.Password = crypt.PasswordEncrypt(req.NewPassword)
+	if err := biz.ds.Users().UpdateUser(c, u); err != nil {
+		return errno.InternalServerError
+	}
+
+	return nil
 }

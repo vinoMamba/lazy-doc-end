@@ -8,5 +8,10 @@ type CreateUserRequest struct {
 
 type LoginRequest struct {
 	Email    string `json:"email" valid:"email,required"`
-	Password string `json:"password" valid:"required,stringlength(6|20)"`
+	Password string `json:"password" valid:"required"`
+}
+
+type UpdatePasswordRequest struct {
+	OldPassword string `json:"oldPassword" valid:"required"`
+	NewPassword string `json:"newPassword" valid:"required"`
 }

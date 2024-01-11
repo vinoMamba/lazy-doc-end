@@ -19,6 +19,7 @@ func registerAllApis(g *gin.Engine) error {
 	userGroup.POST("/login", uc.LoginController)
 	userGroup.Use(middleware.Auth())
 	userGroup.GET("/info", uc.UserInfoController)
+	userGroup.PUT("/password", uc.UpdatePassword)
 
 	return nil
 }

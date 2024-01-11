@@ -10,6 +10,7 @@ import (
 type UserStore interface {
 	Create(c context.Context, u *model.UserM) error
 	GetUserByEmail(c context.Context, email string) (*model.UserM, error)
+	UpdateUser(c context.Context, u *model.UserM) error
 }
 
 type users struct {
@@ -32,4 +33,8 @@ func (s *users) GetUserByEmail(c context.Context, email string) (*model.UserM, e
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (s *users) UpdateUser(c context.Context, u *model.UserM) error {
+	return s.db.Save(u).Error
 }
