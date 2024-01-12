@@ -10,14 +10,14 @@ import (
 
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		email, err := token.GetToken(c)
+		tokenInfo, err := token.GetToken(c)
 		if err != nil {
 			core.WriteResponse(c, errno.ErrTokenInvalid, nil)
 			c.Abort()
 			return
 		}
-
-		c.Set(known.XEmailKey, email)
+		c.Set(known.XUserInfoKey, tokenInfo)
+		c.Set(known.XEmailKey, tokenInfo.Email)
 		c.Next()
 	}
 }

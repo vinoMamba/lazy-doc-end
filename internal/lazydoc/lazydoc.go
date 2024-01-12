@@ -69,7 +69,7 @@ func run() error {
 		return err
 	}
 
-	token.Init(viper.GetString("jwt.key"), known.XEmailKey)
+	token.Init(viper.GetString("jwt.key"), known.XUserInfoKey)
 
 	gin.SetMode(viper.GetString("gin.mode"))
 	g := gin.New()

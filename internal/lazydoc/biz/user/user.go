@@ -59,7 +59,12 @@ func (biz *userBiz) LoginBiz(c context.Context, req *request.LoginRequest) (*res
 	if equal := crypt.ComparePassword(u.Password, req.Password); !equal {
 		return nil, errno.ErrPassswordNotMatch
 	}
-	t, err := token.GenerateJWT(u.Email)
+
+	var tokenInfo token.TokenInfo
+	_ = copier.Copy(&tokenInfo, u)
+
+	t, err := token.GenerateJWT(&tokenInfo)
+
 	if err != nil {
 		return nil, errno.InternalServerError
 	}
