@@ -11,6 +11,7 @@ type ProjectStore interface {
 	Create(c context.Context, project *model.ProjectM) error
 	UpdateProject(c context.Context, project *model.ProjectM) error
 	GetProject(c context.Context, id int) (*model.ProjectM, error)
+	GetProjectList(c context.Context, offset, limit int) (count int64, items []*model.ProjectM, err error)
 }
 type projects struct {
 	db *gorm.DB
@@ -32,6 +33,11 @@ func (p *projects) GetProject(c context.Context, id int) (*model.ProjectM, error
 		return nil, err
 	}
 	return &project, nil
+}
+
+func (p *projects) GetProjectList(c context.Context, offset, limit int) (count int64, items []*model.ProjectM, err error) {
+	err = p.db.Offset(offset).Limit(limit).Find(&items).Offset(-1).Limit(-1).Count(&count).Error
+	return
 }
 
 func (p *projects) UpdateProject(c context.Context, prpject *model.ProjectM) error {
