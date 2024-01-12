@@ -25,5 +25,10 @@ func (ctrl *UserController) UpdateUserInfo(c *gin.Context) {
 	}
 
 	email, _ := c.Get(known.XEmailKey)
-	ctrl.b.User().UpdateUserInfoBiz(c, email.(string), r)
+	if err := ctrl.b.User().UpdateUserInfoBiz(c, email.(string), r); err != nil {
+		core.WriteResponse(c, err, nil)
+
+		return
+	}
+	core.WriteResponse(c, errno.OK, nil)
 }

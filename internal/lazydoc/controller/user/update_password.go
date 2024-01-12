@@ -25,5 +25,11 @@ func (ctrl *UserController) UpdatePassword(c *gin.Context) {
 	}
 
 	email, _ := c.Get(known.XEmailKey)
-	ctrl.b.User().UpdatePasswordBiz(c, email.(string), &r)
+	if err := ctrl.b.User().UpdatePasswordBiz(c, email.(string), &r); err != nil {
+		core.WriteResponse(c, err, nil)
+
+		return
+	}
+
+	core.WriteResponse(c, errno.OK, nil)
 }
