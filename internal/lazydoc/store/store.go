@@ -8,7 +8,7 @@ import (
 
 type IStore interface {
 	Users() UserStore
-	Projects() ProjectStore
+	Dirs() DirectoryStore
 }
 
 type dataStore struct {
@@ -33,6 +33,6 @@ func (s *dataStore) Users() UserStore {
 	return newUsers(s.db)
 }
 
-func (s *dataStore) Projects() ProjectStore {
-	return newProjects(s.db)
+func (s *dataStore) Dirs() DirectoryStore {
+	return newDirectories(s.db)
 }

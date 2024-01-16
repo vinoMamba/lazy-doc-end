@@ -2,7 +2,7 @@ package lazydoc
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/vinoMamba/lazydoc/internal/lazydoc/controller/project"
+	"github.com/vinoMamba/lazydoc/internal/lazydoc/controller/directory"
 	"github.com/vinoMamba/lazydoc/internal/lazydoc/controller/user"
 	"github.com/vinoMamba/lazydoc/internal/lazydoc/store"
 	"github.com/vinoMamba/lazydoc/internal/pkg/core"
@@ -23,10 +23,10 @@ func registerAllApis(g *gin.Engine) error {
 	userGroup.PUT("/password", uc.UpdatePassword)
 	userGroup.PUT("/info", uc.UpdateUserInfo)
 
-	pc := project.New(store.Ds)
-	projectGroup := g.Group("/project")
-	projectGroup.Use(middleware.Auth())
-	projectGroup.POST("/create", pc.CreateProject)
+	dirc := directory.New(store.Ds)
+	dirGroup := g.Group("/dir")
+	dirGroup.Use(middleware.Auth())
+	dirGroup.POST("/save", dirc.CreateDir)
 
 	return nil
 }
