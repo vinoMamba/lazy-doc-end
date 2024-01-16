@@ -27,6 +27,9 @@ func registerAllApis(g *gin.Engine) error {
 	dirGroup := g.Group("/dir")
 	dirGroup.Use(middleware.Auth())
 	dirGroup.POST("/save", dirc.CreateDir)
+	dirGroup.PUT("/update/:dirId", dirc.UpdateDir)
+	dirGroup.DELETE("/delete/:dirId", dirc.DeleteDir)
+	dirGroup.GET("/list", dirc.ListDir)
 
 	return nil
 }
