@@ -13,8 +13,8 @@ type ProjectM struct {
 	ProjectDesc string    `gorm:"column:project_desc"`
 	Status      int       `gorm:"column:status;default:0"`
 	IsDeleted   int       `gorm:"column:is_deleted;default:0"`
-	CreatedBy   string    `gorm:"column:created_by"`
-	UpdatedBy   string    `gorm:"column:updated_by"`
+	CreatedBy   int64     `gorm:"column:created_by"`
+	UpdatedBy   int64     `gorm:"column:updated_by"`
 	CreatedAt   time.Time `gorm:"column:created_at"`
 	UpdatedAt   time.Time `gorm:"column:updated_at"`
 }

@@ -5,9 +5,10 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/vinoMamba/lazydoc/internal/lazydoc/store"
-	"github.com/vinoMamba/lazydoc/internal/pkg/log"
+	"github.com/vinoMamba/lazydoc/internal/pkg/known"
 	"github.com/vinoMamba/lazydoc/internal/pkg/model"
 	"github.com/vinoMamba/lazydoc/pkg/request"
+	"github.com/vinoMamba/lazydoc/pkg/token"
 )
 
 type ProjectBiz interface {
@@ -25,8 +26,12 @@ func New(ds store.IStore) *projectBiz {
 }
 
 func (p *projectBiz) CreateProjectBiz(c context.Context, req *request.CreateProjectRequest) error {
-	log.C(c).Infow("create project", "req", req)
+	token := c.Value(known.XUserInfoKey).(*token.TokenInfo)
+
 	var projectM model.ProjectM
+
+	projectM.CreatedBy = token.ID
+	projectM.UpdatedBy = token.ID
 
 	_ = copier.Copy(&projectM, req)
 
