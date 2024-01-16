@@ -68,7 +68,12 @@ func (biz *userBiz) LoginBiz(c context.Context, req *request.LoginRequest) (*res
 	if err != nil {
 		return nil, errno.InternalServerError
 	}
-	return &response.LoginResponse{Token: t}, nil
+
+	var loginResponse response.LoginResponse
+	_ = copier.Copy(&loginResponse, u)
+	loginResponse.Token = t
+
+	return &loginResponse, nil
 }
 
 func (biz *userBiz) GetUserInfoBiz(c context.Context, email string) (*response.UserInfoResponse, error) {
